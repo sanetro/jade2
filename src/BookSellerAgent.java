@@ -20,7 +20,7 @@ public class BookSellerAgent extends Agent {
     catalogue = new Hashtable();
     myGui = new BookSellerGui(this);
     myGui.display();
-	ShippingFee = 15; // Value + Shipping fee
+	ShippingFee = 15;
 
     //book selling service registration at DF
     DFAgentDescription dfd = new DFAgentDescription();
@@ -59,7 +59,7 @@ public class BookSellerAgent extends Agent {
       public void action() {
 		catalogue.put(title, price + ShippingFee);
 		System.out.println(
-				getAID().getLocalName() + ": " + title + " put into the catalogue. Price = " + price + " + " + ShippingFee);
+				getAID().getLocalName() + ": " + title + " put into the catalogue. Price = " + price + " + (ShippingFee) " + ShippingFee);
       }
     } );
   }
@@ -93,6 +93,7 @@ public class BookSellerAgent extends Agent {
 
 	
 	private class PurchaseOrdersServer extends CyclicBehaviour {
+
 	  public void action() {
 	    //purchase order as proposal acceptance only template
 		MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);

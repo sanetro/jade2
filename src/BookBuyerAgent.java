@@ -86,6 +86,9 @@ public class BookBuyerAgent extends Agent {
 	  private int repliesCnt = 0;
 	  private MessageTemplate mt;
 	  private int step = 0;
+
+	  private final BuyerBudget buyerBudget = new BuyerBudget(100); // 100$
+
 	
 	  public void action() {
 	    switch (step) {
@@ -127,17 +130,24 @@ public class BookBuyerAgent extends Agent {
 	      }
 	      break;
 	    case 2:
-	      //best proposal consumption - purchase
-	      ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
-          order.addReceiver(bestSeller);
-	      order.setContent(targetBookTitle);
-	      order.setConversationId("book-trade");
-	      order.setReplyWith("order"+System.currentTimeMillis());
-	      myAgent.send(order);
-	      mt = MessageTemplate.and(MessageTemplate.MatchConversationId("book-trade"),
-	                               MessageTemplate.MatchInReplyTo(order.getReplyWith()));
-	      step = 3;
-	      break;
+			if (buyerBudget.isAvaibleToBuy(bestPrice)) {
+					//best proposal consumption - purchase
+					buyerBudget.setBudget(buyerBudget.getBudget() - bestPrice);
+					ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+					order.addReceiver(bestSeller);
+					order.setContent(targetBookTitle);
+					order.setConversationId("book-trade");
+					order.setReplyWith("order"+System.currentTimeMillis());
+					myAgent.send(order);
+					mt = MessageTemplate.and(MessageTemplate.MatchConversationId("book-trade"),
+							MessageTemplate.MatchInReplyTo(order.getReplyWith()));
+					step = 3;
+			} else {
+				System.out.println("Buyer is not able to buy this book, because of his budget.");
+				step = 4;
+			}
+
+			break;
 	    case 3:      
 	      //seller confirms the transaction
 	      reply = myAgent.receive(mt);
